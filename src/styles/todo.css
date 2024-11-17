@@ -1,0 +1,49 @@
+#todos {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  row-gap: 20px;
+  width: 60%
+}
+
+#add_task {
+    display: flex;
+}
+  
+#cross {
+cursor: pointer;
+margin-right: 7px;
+font-size: 22px
+}
+
+.a_todo {
+display: flex;
+justify-content: space-between;
+align-items: space-between;
+width: 100%;
+}
+
+.a_todo > div {
+display: flex;
+width: 33.33%;
+justify-content: center;
+text-align: center;
+}
+
+#completed, #pending {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 75%;
+}
+
+#completed .a_todo {
+text-decoration: line-through;
+}
+
+#set_completed:hover{
+  cursor: pointer;
+  text-decoration: underline;
+}

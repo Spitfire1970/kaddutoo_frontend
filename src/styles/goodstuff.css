@@ -1,0 +1,63 @@
+#goodstuff {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    row-gap: 15px;
+    margin-top: 20px;
+    margin-bottom: 20px
+  }
+
+#quote {
+  font-size: 35px;
+  width: 50vw;
+  text-align: center
+}
+
+#fuzzy {
+  font-size: 24px;
+  width: 44vw;
+  text-align: center;
+}
+
+.parts {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  row-gap: 15px;
+}
+
+#good_button {
+  text-wrap: wrap;
+}
+
+#new_quote {
+
+  display: flex;
+}
+
+#add_quote {
+  display:flex;
+  flex-direction: row;
+}
+
+#add_q_button {
+	width: 0.1px;
+	height: 0.1px;
+	opacity: 0;
+	overflow: hidden;
+	position: absolute;
+	z-index: -1;
+}
+
+#add_q_label {
+  cursor: pointer;
+  font-weight: 500;
+  color: rgb(85, 85, 85);
+  font-size: 18px;
+}
+
+#add_q_label:hover {
+  text-decoration: underline;
+}

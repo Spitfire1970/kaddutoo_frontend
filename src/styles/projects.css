@@ -1,0 +1,43 @@
+.a_project a {
+    text-decoration: none;
+}
+
+.project_title {
+    font-size: 20px;
+    color: #f8bf44;
+    font-weight: 550;
+}
+
+.try_it:hover, .visit:hover{
+    text-decoration: underline;
+}
+
+.try_it {
+    color: white !important;
+}
+
+.visit{
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+.project_description {
+    color: #b7bbc1;
+}
+
+.project_container {
+    width: 92vw;
+    height: 72vh
+}
+
+.project_header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#note {
+    font-size: 20px;
+    margin: 16px;
+    margin-bottom: 24px
+}
