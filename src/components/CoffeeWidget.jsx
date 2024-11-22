@@ -10,7 +10,7 @@ export default function Buymeacoffee() {
 		script.setAttribute("data-description", "Support me on Buy me a coffee!");
 		script.setAttribute(
 			"data-message",
-			"Thank you for visiting my website. If this app has helped you in anyway, consider buying us a coffee. ✨😎",
+			"support my techy shenanigans (anything counts)",
 		);
 		script.setAttribute("data-color", "#26b0a1");
 		script.setAttribute("data-position", "Right");
