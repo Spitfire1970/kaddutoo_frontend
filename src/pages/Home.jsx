@@ -17,10 +17,11 @@ const Home = () => {
             </div>
 
             <div className="text-gray-400 text-base md:text-lg text-center">
-              <div className="underline mb-2">For recruiters 👇:</div>
+              <div className="underline mb-2">For admissions/recruiters 👇:</div>
               <p className="mb-4">
                 I am graduating in June 2025 with a BSc in Computer Science from University College London (UCL) 
-                with an expected first class honors and I am interested in doing a fullstack job immediately upon graduation. 
+                with an expected first class honours. <br></br>
+                {/* and I am interested in doing a fullstack job immediately upon graduation.  */}
                 Please get in touch with me at my{' '}
                 <a href="mailto:ngoyal7019@gmail.com" className="underline hover:text-gray-300 transition-colors">
                   email
