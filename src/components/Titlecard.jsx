@@ -42,7 +42,7 @@ const Titlecard = () => {
             onMouseEnter={() => setClickedPronounce(true)}
             onMouseLeave={() => setClickedPronounce(false)}
           >
-            नकुल | not-cool | knuckle(s)
+            नकुल | not-cool | ナクル
           </p>
           
           <p
