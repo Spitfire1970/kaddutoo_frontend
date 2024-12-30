@@ -217,7 +217,7 @@ const Goodstuff = () => {
             </div>
             <div className="flex flex-col gap-4">
               <MyArea rows="5" placeholder="Add quote" f={setNewQuote} />
-              <MyInput placeholder="Add yt video id" f={setNewYt} />
+              <MyInput placeholder="Add yt video id (optional)" f={setNewYt} />
               <MyButton onClick={add_quote} text_false="add new entry" />
             </div>
           </div>
