@@ -13,6 +13,7 @@ import Donation from './pages/Donation';
 import Logs from './pages/Logs';
 import Todos from './pages/Todos';
 import Projects from './pages/Projects';
+import NotFound from './pages/NotFound';
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 
 const Gallery = lazy(() => import('./pages/Gallery'));
@@ -88,6 +89,7 @@ const AppContent = () => {
           <Route path="/logs" element={<Logs />} />
           <Route path="/projects" element={<Projects />} />
           <Route path="/projects/:title" element={<Project url={location.pathname.split('/')[2]} />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
       <Footer />

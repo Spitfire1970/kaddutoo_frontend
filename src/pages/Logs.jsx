@@ -37,20 +37,18 @@ const Logs = () => {
     <div className="container mx-auto px-4 flex flex-col lg:flex-row items-start justify-center gap-10 lg:py-8">
 
       <div className="flex flex-col items-center gap-16 lg:w-1/2 pt-8">
-        <div className="text-xl text-center max-w-2xl">
-          Hello Ma!
+        <div className="text-3xl text-center max-w-2xl">
+          For Ma,
           <p className="mt-4">
-            This page shows the exact time when I last logged into my laptop using a custom login script that runs on my macbook.
-            I am usually on my laptop everyday so if I have not logged-in in a while it (likely) means I died (or got kidnapped, etc).
-            I felt this would be a good way for my mom to check in on me quickly when I am far away from home anytime she is worried about my safety!
+            This page shows the exact time when I last logged into my laptop using an automated custom login script.
           </p>
         </div>
 
         <div className="flex flex-col items-center text-center">
-          <div className="text-3xl mb-2">
+          <div className="text-4xl mb-2">
             I am probably:
           </div>
-          <div className={`text-4xl font-bold ${statusColor}`}>
+          <div className={`text-5xl font-bold ${statusColor}`}>
             {status}
           </div>
           <div className="text-xl text-gray-400 mt-4">
