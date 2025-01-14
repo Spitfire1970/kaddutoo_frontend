@@ -6,6 +6,10 @@ const Footer = () => {
       { href: 'https://www.instagram.com/na_kewl', img: 'https://utfs.io/f/69e7ac22-dc89-4dad-bd01-2db8fc4ffb54-l8hj5e.png', id: 'instagram' },
       { href: 'https://www.youtube.com/channel/UCrUiOmNXqH5eGrRUN9DjBXQ', img: 'https://utfs.io/f/6bd3eaec-21bb-4a35-b7b1-cbac2f7164a3-oa22gw.png', id: 'youtube' },
       { href: 'https://www.duolingo.com/profile/spitfire7019', img: 'https://utfs.io/f/181e1465-241d-4354-9cac-08af700a4a79-x9lx7z.png', id: 'duo' },
+      { href: 'https://letterboxd.com/spitfire7019/', img: 'https://1q563ni2c3.ufs.sh/f/DFPZ9taLSVwPHdBJgM7k9I8S7WhjoUet1NazgPdluyKBD4vE', id: 'letterboxd' },
+      // { href: 'https://www.chess.com/member/spitfire7019', img: 'https://1q563ni2c3.ufs.sh/f/DFPZ9taLSVwP7y2HDdYQZIKd9JDqB6z0TtNunmCgsxjwV3Pe', id: 'chess' },
+      { href: 'https://leetcode.com/u/Spitfire1970/', img: 'https://1q563ni2c3.ufs.sh/f/DFPZ9taLSVwP2KpOwWF0qNmpiXZY5WJdx7hDVjLec1gfG9KI', id: 'leetcode' },
+      // { href: 'https://www.strava.com/athletes/129254689', img: 'https://1q563ni2c3.ufs.sh/f/DFPZ9taLSVwPiqKI8LPcTygKrXiB85I4Wv0U9hQsmazeZCER', id: 'strava' },
     ];
   
     return (

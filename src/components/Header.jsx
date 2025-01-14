@@ -7,7 +7,7 @@ const Header = () => {
         to="/login" 
         className="hover:underline cursor-pointer"
       >
-        are you Nakul?
+        are you Nakul? (log in)
       </ColoredLink>
       <ColoredLink 
         to="/donation" 
