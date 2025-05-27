@@ -1,219 +1,358 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import useWebSocket from 'react-use-websocket';
-import { Clock, Users } from 'lucide-react';
+import ChessBoard from '../components/chess/ChessBoard';
+import ChessLobby from '../components/chess/ChessLobby';
+import ChessGameInfo from '../components/chess/ChessGameInfo';
 
-// Chess piece components using unicode characters
-const Piece = ({ type, color }) => {
-  const pieces = {
-    king: { white: '♔', black: '♚' },
-    queen: { white: '♕', black: '♛' },
-    rook: { white: '♖', black: '♜' },
-    bishop: { white: '♗', black: '♝' },
-    knight: { white: '♘', black: '♞' },
-    pawn: { white: '♙', black: '♟' }
-  };
-  
-  return (
-    <div className="text-4xl select-none">
-      {pieces[type]?.[color]}
-    </div>
-  );
-};
-
-// Initial board setup
-const initialBoard = [
-  ['rook', 'knight', 'bishop', 'queen', 'king', 'bishop', 'knight', 'rook'],
-  Array(8).fill('pawn'),
-  Array(8).fill(null),
-  Array(8).fill(null),
-  Array(8).fill(null),
-  Array(8).fill(null),
-  Array(8).fill('pawn'),
-  ['rook', 'knight', 'bishop', 'queen', 'king', 'bishop', 'knight', 'rook']
-];
-
-const ChessGame = () => {
-  const [board, setBoard] = useState(initialBoard);
-  const [selectedSquare, setSelectedSquare] = useState(null);
+const Chess = () => {
+  const [guestName, setGuestName] = useState('');
+  const [isNameEntered, setIsNameEntered] = useState(false);
+  const [gameMode, setGameMode] = useState(null); // 'standard' or 'chess960'
+  const [timeControl, setTimeControl] = useState(null);
+  const [inGame, setInGame] = useState(false);
+  const [gameId, setGameId] = useState(null);
+  const [position, setPosition] = useState(null);
   const [playerColor, setPlayerColor] = useState(null);
-  const [currentTurn, setCurrentTurn] = useState('white');
-  const [gameState, setGameState] = useState('waiting'); // waiting, playing, ended
-  const [timeLeft, setTimeLeft] = useState({ white: 600, black: 600 }); // 10 minutes per player
-  const [lastMoveTime, setLastMoveTime] = useState(null);
-
-  const { sendMessage, lastMessage, readyState } = useWebSocket('ws://localhost:8080', {
-    onOpen: () => {
-      console.log('WebSocket Connected');
-    },
-    onError: (error) => {
-      console.error('WebSocket Error:', error);
-    },
-    onClose: () => {
-      console.log('WebSocket Disconnected');
-    },
-    shouldReconnect: (closeEvent) => true,
+  const [opponent, setOpponent] = useState(null);
+  const [waitingGames, setWaitingGames] = useState([]);
+  const [selectedPiece, setSelectedPiece] = useState(null);
+  const [gameStats, setGameStats] = useState({
+    capturedQueens: 0,
+    capturedPawns: 0,
+    castledKings: 0,
+  });
+  const [globalStats, setGlobalStats] = useState({
+    capturedQueens: 0,
+    capturedPawns: 0,
+    castledKings: 0,
+  });
+  const [timeLeft, setTimeLeft] = useState({ white: 0, black: 0 });
+  const [isPlayerTurn, setIsPlayerTurn] = useState(false);
+  const [drawOfferReceived, setDrawOfferReceived] = useState(false);
+  const [gameResult, setGameResult] = useState(null);
+  
+  // WebSocket connection
+  const socketUrl = import.meta.env.MODE === 'production' 
+    ? 'wss://kaddu.lol/chess-ws'
+    : 'ws://localhost:3001/chess-ws';
+  
+  const { sendJsonMessage, lastJsonMessage } = useWebSocket(socketUrl, {
+    onOpen: () => console.log('WebSocket connection established'),
+    onError: (event) => console.error('WebSocket error:', event),
+    shouldReconnect: () => true,
+    reconnectAttempts: 10,
+    reconnectInterval: 3000,
   });
 
-  // ... (Rest of the component remains the sam
-
-  // Timer effect
-  useEffect(() => {
-    if (gameState === 'playing' && lastMoveTime) {
-      const interval = setInterval(() => {
-        setTimeLeft(prev => ({
-          ...prev,
-          [currentTurn]: Math.max(0, prev[currentTurn] - 1)
-        }));
-      }, 1000);
-
-      return () => clearInterval(interval);
-    }
-  }, [currentTurn, gameState, lastMoveTime]);
+  // Reset game state
+  const resetGameState = () => {
+    setInGame(false);
+    setGameId(null);
+    setPosition(null);
+    setPlayerColor(null);
+    setOpponent(null);
+    setSelectedPiece(null);
+    setDrawOfferReceived(false);
+    setIsPlayerTurn(false);
+    setGameStats({
+      capturedQueens: 0,
+      capturedPawns: 0,
+      castledKings: 0,
+    });
+    setGameResult(null);
+  };
 
   // Handle incoming WebSocket messages
   useEffect(() => {
-    if (lastMessage) {
-      const data = JSON.parse(lastMessage.data);
+    if (lastJsonMessage) {
+      const { type, data } = lastJsonMessage;
       
-      switch (data.type) {
-        case 'gameStart':
+      switch (type) {
+        case 'waiting_games':
+          setWaitingGames(data.games);
+          if (data.globalStats) {
+            setGlobalStats(data.globalStats);
+          }
+          break;
+        case 'game_created':
+          setGameId(data.gameId);
           setPlayerColor(data.color);
-          setGameState('playing');
+          setPosition(data.position);
+          setTimeLeft(data.timeControl);
+          setInGame(true);
+          setGameResult(null);
           break;
-        case 'move':
-          handleMove(data.from, data.to);
+        case 'game_joined':
+          setGameId(data.gameId);
+          setPlayerColor(data.color);
+          setPosition(data.position);
+          setOpponent(data.opponent);
+          setTimeLeft(data.timeControl);
+          setInGame(true);
+          setIsPlayerTurn(data.color === 'white');
+          setGameResult(null);
           break;
-        case 'gameEnd':
-          setGameState('ended');
+        case 'opponent_joined':
+          setOpponent(data.opponent);
+          // Update time control if provided
+          if (data.timeControl) {
+            setTimeLeft(data.timeControl);
+          }
+          // If player is white, they go first
+          if (playerColor === 'white') {
+            setIsPlayerTurn(true);
+          }
           break;
+        case 'move_made':
+          setPosition(data.position);
+          // Ensure timeLeft is properly updated with the server values
+          if (data.timeLeft) {
+            setTimeLeft(data.timeLeft);
+          }
+          setIsPlayerTurn(data.nextTurn === playerColor);
+          // Update stats if needed
+          if (data.stats) {
+            setGameStats(prevStats => ({
+              ...prevStats,
+              ...data.stats
+            }));
+          }
+          break;
+        case 'draw_offered':
+          setDrawOfferReceived(true);
+          break;
+        case 'draw_declined':
+          alert('Draw offer declined');
+          break;
+        case 'game_over':
+          setGameResult(data.result);
+          // Don't show alert for timeout if it's the player's own timeout
+          if (!data.result.toLowerCase().includes('time') || !isPlayerTurn) {
+            alert(`Game over: ${data.result}`);
+          }
+          // Don't reset the game state immediately to allow the player to see the final position
+          setTimeout(() => {
+            resetGameState();
+            // Request waiting games after a game ends
+            sendJsonMessage({
+              type: 'get_waiting_games',
+            });
+          }, 1000);
+          break;
+        case 'error':
+          console.error('Server error:', data.message);
+          alert(`Error: ${data.message}`);
+          break;
+        default:
+          console.log('Unknown message type:', type);
       }
     }
-  }, [lastMessage]);
+  }, [lastJsonMessage, playerColor, sendJsonMessage, isPlayerTurn]);
 
-  // Check if move is valid (simplified chess rules)
-  const isValidMove = (from, to) => {
-    // Implement chess rules here
-    // This is a simplified version - you'd want to add all chess rules
-    const [fromRow, fromCol] = from;
-    const [toRow, toCol] = to;
-    const piece = board[fromRow][fromCol];
-    
-    // Basic movement validation
-    if (!piece) return false;
-    
-    // Add more chess rules here (pawn movement, castling, etc.)
-    return true;
-  };
-
-  const handleSquareClick = (row, col) => {
-    if (gameState !== 'playing' || currentTurn !== playerColor) return;
-
-    if (selectedSquare) {
-      const [selectedRow, selectedCol] = selectedSquare;
+  // Request waiting games when name is entered
+  useEffect(() => {
+    if (isNameEntered) {
+      sendJsonMessage({
+        type: 'get_waiting_games',
+      });
       
-      if (isValidMove([selectedRow, selectedCol], [row, col])) {
-        handleMove([selectedRow, selectedCol], [row, col]);
-        sendMessage(JSON.stringify({
-          type: 'move',
-          from: [selectedRow, selectedCol],
-          to: [row, col]
-        }));
-      }
+      // Set up polling for waiting games
+      const interval = setInterval(() => {
+        if (!inGame) {
+          sendJsonMessage({
+            type: 'get_waiting_games',
+          });
+        }
+      }, 5000);
       
-      setSelectedSquare(null);
-    } else {
-      if (board[row][col]) {
-        setSelectedSquare([row, col]);
-      }
+      return () => clearInterval(interval);
+    }
+  }, [isNameEntered, sendJsonMessage, inGame]);
+
+  const handleNameSubmit = (e) => {
+    e.preventDefault();
+    if (guestName.trim()) {
+      setIsNameEntered(true);
+      sendJsonMessage({
+        type: 'register',
+        data: { name: guestName }
+      });
     }
   };
 
-  const handleMove = (from, to) => {
-    const [fromRow, fromCol] = from;
-    const [toRow, toCol] = to;
+  const createGame = () => {
+    if (!gameMode || !timeControl) return;
     
-    setBoard(prev => {
-      const newBoard = [...prev.map(row => [...row])];
-      newBoard[toRow][toCol] = newBoard[fromRow][fromCol];
-      newBoard[fromRow][fromCol] = null;
-      return newBoard;
+    sendJsonMessage({
+      type: 'create_game',
+      data: {
+        mode: gameMode,
+        timeControl: timeControl,
+        playerName: guestName
+      }
     });
-    
-    setCurrentTurn(prev => prev === 'white' ? 'black' : 'white');
-    setLastMoveTime(Date.now());
   };
 
-  const formatTime = (seconds) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  const joinGame = (gameId) => {
+    sendJsonMessage({
+      type: 'join_game',
+      data: {
+        gameId,
+        playerName: guestName
+      }
+    });
+  };
+
+  const makeMove = (from, to) => {
+    if (!isPlayerTurn || gameResult) return;
+    
+    sendJsonMessage({
+      type: 'make_move',
+      data: {
+        gameId,
+        from,
+        to,
+        playerColor
+      }
+    });
+  };
+
+  const handlePieceClick = (square) => {
+    if (!isPlayerTurn || gameResult) return;
+    
+    // If no piece is selected and the clicked square has a piece of the player's color, select it
+    if (!selectedPiece) {
+      const piece = position[square];
+      if (piece && piece.color === playerColor) {
+        setSelectedPiece(square);
+      }
+    } 
+    // If a piece is already selected
+    else {
+      // If clicking the same square, deselect
+      if (selectedPiece === square) {
+        setSelectedPiece(null);
+      } 
+      // If clicking a different square, try to make a move
+      else {
+        makeMove(selectedPiece, square);
+        setSelectedPiece(null);
+      }
+    }
+  };
+
+  const offerDraw = () => {
+    if (gameResult) return;
+    
+    sendJsonMessage({
+      type: 'offer_draw',
+      data: { gameId, playerColor }
+    });
+  };
+  
+  const acceptDraw = () => {
+    if (gameResult) return;
+    
+    sendJsonMessage({
+      type: 'accept_draw',
+      data: { gameId, playerColor }
+    });
+    setDrawOfferReceived(false);
+  };
+  
+  const declineDraw = () => {
+    if (gameResult) return;
+    
+    sendJsonMessage({
+      type: 'decline_draw',
+      data: { gameId, playerColor }
+    });
+    setDrawOfferReceived(false);
+  };
+
+  const resign = (reason = 'resigned') => {
+    if (gameResult) return;
+    
+    if (reason === 'timeout' || window.confirm('Are you sure you want to resign?')) {
+      sendJsonMessage({
+        type: 'resign',
+        data: { gameId, playerColor }
+      });
+    }
   };
 
   return (
-    <div className="flex flex-col items-center space-y-8 p-8">
-      {/* Game status */}
-      <div className="flex items-center space-x-4">
-        <Users className="w-6 h-6" />
-        <span className="text-lg font-medium">
-          {gameState === 'waiting' ? 'Waiting for opponent...' : 
-           gameState === 'playing' ? `Your turn: ${currentTurn}` : 
-           'Game ended'}
-        </span>
-      </div>
-
-      {/* Timers */}
-      <div className="flex justify-between w-96">
-        <div className="flex items-center space-x-2">
-          <Clock className="w-5 h-5" />
-          <span className="font-mono">White: {formatTime(timeLeft.white)}</span>
+    <div className="max-w-4xl mx-auto px-4 py-6 text-white">
+      {!isNameEntered ? (
+        <div className="max-w-md mx-auto p-6 bg-gray-800 rounded-lg shadow-lg">
+          <h2 className="text-2xl font-bold text-center mb-6">Welcome to Chess</h2>
+          <form onSubmit={handleNameSubmit} className="space-y-4">
+            <input
+              type="text"
+              value={guestName}
+              onChange={(e) => setGuestName(e.target.value)}
+              placeholder="Enter your name"
+              className="w-full p-3 bg-gray-700 border border-gray-600 rounded-md text-white"
+              required
+            />
+            <button 
+              type="submit"
+              className="w-full py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+            >
+              Enter
+            </button>
+          </form>
         </div>
-        <div className="flex items-center space-x-2">
-          <Clock className="w-5 h-5" />
-          <span className="font-mono">Black: {formatTime(timeLeft.black)}</span>
-        </div>
-      </div>
-
-      {/* Chess board */}
-      <div className="grid grid-cols-8 gap-0 border border-gray-300">
-        {board.map((row, rowIndex) => (
-          row.map((piece, colIndex) => {
-            const isSelected = selectedSquare?.[0] === rowIndex && selectedSquare?.[1] === colIndex;
-            const squareColor = (rowIndex + colIndex) % 2 === 0 ? 'bg-amber-100' : 'bg-amber-800';
-            
-            return (
-              <div
-                key={`${rowIndex}-${colIndex}`}
-                className={`
-                  w-16 h-16 flex items-center justify-center cursor-pointer
-                  ${squareColor}
-                  ${isSelected ? 'ring-2 ring-blue-500' : ''}
-                  ${piece ? 'hover:ring-1 hover:ring-blue-300' : ''}
-                `}
-                onClick={() => handleSquareClick(rowIndex, colIndex)}
+      ) : !inGame ? (
+        <ChessLobby
+          gameMode={gameMode}
+          setGameMode={setGameMode}
+          timeControl={timeControl}
+          setTimeControl={setTimeControl}
+          createGame={createGame}
+          waitingGames={waitingGames}
+          joinGame={joinGame}
+          playerName={guestName}
+          globalStats={globalStats}
+        />
+      ) : (
+        <div className="space-y-4">
+          <ChessGameInfo
+            playerName={guestName}
+            opponentName={opponent}
+            playerColor={playerColor}
+            timeLeft={timeLeft}
+            isPlayerTurn={isPlayerTurn}
+            gameStats={gameStats}
+            offerDraw={offerDraw}
+            acceptDraw={acceptDraw}
+            declineDraw={declineDraw}
+            resign={resign}
+            drawOfferReceived={drawOfferReceived}
+          />
+          <div className="max-w-xl mx-auto">
+            <ChessBoard
+              position={position}
+              playerColor={playerColor}
+              selectedPiece={selectedPiece}
+              onSquareClick={handlePieceClick}
+            />
+          </div>
+          {gameResult && (
+            <div className="p-3 bg-gray-800 text-white rounded-md text-center border border-[#3DD3AE]">
+              <p className="font-bold">Game Over: {gameResult}</p>
+              <button 
+                className="mt-2 px-4 py-2 bg-[#3DD3AE] text-black rounded-md hover:bg-[#2cb896]"
+                onClick={resetGameState}
               >
-                {piece && (
-                  <Piece
-                    type={piece}
-                    color={rowIndex < 2 ? 'black' : 'white'}
-                  />
-                )}
-              </div>
-            );
-          })
-        ))}
-      </div>
-
-      {/* Play button */}
-      {gameState === 'waiting' && (
-        <button
-          className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-          onClick={() => sendMessage(JSON.stringify({ type: 'joinGame' }))}
-        >
-          Play Game
-        </button>
+                Return to Lobby
+              </button>
+            </div>
+          )}
+        </div>
       )}
     </div>
   );
 };
 
-export default ChessGame;
+export default Chess; 

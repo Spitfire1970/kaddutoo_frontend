@@ -17,6 +17,7 @@ import NotFound from './pages/NotFound';
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 
 const Gallery = lazy(() => import('./pages/Gallery'));
+const Chess = lazy(() => import('./pages/Chess'));
 
 const App = () => {
   return (
@@ -81,6 +82,11 @@ const AppContent = () => {
               <Gallery />
             </Suspense>
           } />
+          {/* <Route path="/chess" element={
+            <Suspense fallback={<div className="text-center">Loading...</div>}>
+              <Chess />
+            </Suspense>
+          } /> */}
           <Route path="/blogs" element={<Blogs />} />
           <Route path="/quotes" element={<Goodstuff />} />
           <Route path="/favourites" element={<Favourites />} />

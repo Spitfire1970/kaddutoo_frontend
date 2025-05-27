@@ -13,7 +13,7 @@ const Footer = () => {
     ];
   
     return (
-      <footer className="flex h-[50px] w-4/5 mb-5 mt-8 gap-8 sm:gap-12 justify-center flex-wrap mx-auto">
+      <footer className="flex h-[50px] w-4/5 mb-8 mt-8 gap-8 sm:gap-12 justify-center flex-wrap mx-auto">
         {socialLinks.map(({ href, img, id }) => (
           <a
             key={id}

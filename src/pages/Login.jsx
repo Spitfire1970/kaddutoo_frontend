@@ -15,7 +15,7 @@ const Login = ({ setUser, setHash }) => {
 
   return (
     <div className="flex flex-col items-center mt-8">
-      <h2>login</h2>
+      <h2>login*</h2>
         <div className='m-2'>
           <MyInput
             placeholder="username"
@@ -30,6 +30,7 @@ const Login = ({ setUser, setHash }) => {
           />
         </div>
         <MyButton onClick = {onSubmit} text_true = 'login' text_false = 'login'></MyButton>
+        <div className = "mt-8">*this unlocks the "personal" part of this website. only for me :)</div>
     </div>
   );
 };
