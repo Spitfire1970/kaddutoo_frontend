@@ -33,7 +33,7 @@ const Chess = () => {
   
   // WebSocket connection
   const socketUrl = import.meta.env.MODE === 'production' 
-    ? 'wss://kaddu.lol/chess-ws'
+    ? 'wss://nakul.one/chess-ws'
     : 'ws://localhost:3001/chess-ws';
   
   const { sendJsonMessage, lastJsonMessage } = useWebSocket(socketUrl, {

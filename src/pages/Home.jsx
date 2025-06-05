@@ -45,7 +45,7 @@ return (
            and more recently: RL and Systems
         </div>
       </div>
-      <div className="md:w-1/2">
+      <div className="md:w-1/2 md:mr-20">
         <div className="text-center md:mt-4 mt-8">
           <h2 className="text-2xl mb-1">
             Total website visits since 6th Jan 2025:
