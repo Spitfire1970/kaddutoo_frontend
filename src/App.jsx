@@ -32,7 +32,7 @@ const AppContent = () => {
   const [hash, setHash] = useState(null);
   const location = useLocation();
   const all_pages = ['gallery', 'blogs', 'favourites', 'projects', 'quotes', 'logs'];
-  const admin_pages = ['to do'];
+  const admin_pages = ['to do', 'chess'];
 
   return (
     <div className="min-h-screen flex flex-col bg-black text-white font-serif">
@@ -82,11 +82,11 @@ const AppContent = () => {
               <Gallery />
             </Suspense>
           } />
-          {/* <Route path="/chess" element={
+          <Route path="/chess" element={
             <Suspense fallback={<div className="text-center">Loading...</div>}>
               <Chess />
             </Suspense>
-          } /> */}
+          } />
           <Route path="/blogs" element={<Blogs />} />
           <Route path="/quotes" element={<Goodstuff />} />
           <Route path="/favourites" element={<Favourites />} />
