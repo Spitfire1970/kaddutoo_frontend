@@ -29,7 +29,7 @@ return (
           </h1>
           <div>
             Play against&nbsp;
-            <a href="https://main.d35f6rsacdh2vo.amplifyapp.com/" target="_blank" rel="noopener noreferrer" className = "hover:text-[#fbbf24] text-yellow-300">
+            <a href="https://chess.nakul.one" target="_blank" rel="noopener noreferrer" className = "hover:text-[#fbbf24] text-yellow-300">
               <span className="-skew-x-3 skew-y-3 inline-block ">
                 personalized
               </span>&nbsp;&nbsp;&nbsp;&nbsp;
